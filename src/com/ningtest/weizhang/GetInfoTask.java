@@ -3,6 +3,7 @@ package com.ningtest.weizhang;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
@@ -13,11 +14,11 @@ import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
@@ -27,15 +28,15 @@ public class GetInfoTask extends AsyncTask<String, Integer, Boolean> {
 	protected String _errmsg;
 	protected List<NameValuePair> sess_params;
 	protected HttpContext hcon;
-	//final private String _cookie_sess = "ASPSESSIONIDQCDATRQT", _cookie_token = "CNZZDATA946534";
-	public String result;
-	private String _type;
-	private CookieStore cs;
+	public byte[] result;
+	protected String _type;
+	protected CookieStore cs;
+	private List<Header> _headers;
 	
 	GetInfoTask() {
 		cs = new BasicCookieStore();
 		sess_params = new ArrayList<NameValuePair>();
-		result = new String();
+		_headers = new ArrayList<Header>();
 	}
 	
 	protected void initPostValues() {}
@@ -46,6 +47,10 @@ public class GetInfoTask extends AsyncTask<String, Integer, Boolean> {
         bc1.setDomain(".stc.gov.cn");
         bc1.setPath("/");
         cs.addCookie(bc1);
+	}
+	
+	protected void initHeaders(String Key, String Val) {
+		_headers.add(new BasicHeader(Key, Val));
 	}
 	
 	@Override
@@ -67,16 +72,24 @@ public class GetInfoTask extends AsyncTask<String, Integer, Boolean> {
 			HttpParams httpparam = new BasicHttpParams();
 			HttpProtocolParams.setUserAgent(httpparam, useragent);
 			
+			
 			if ( _type.equals("get") ) {
-				HttpGet httpRequest = new HttpGet(urlstr); 
+				HttpGet httpRequest = new HttpGet(urlstr);
 				HttpResponse httpRep = new DefaultHttpClient(httpparam).execute(httpRequest, hcon);
-				result = EntityUtils.toString(httpRep.getEntity());
+				for ( Header hh : _headers ) {
+					httpRequest.setHeader(hh);
+				}
+				//result = EntityUtils.toString(httpRep.getEntity());
+				result = EntityUtils.toByteArray(httpRep.getEntity());
 			} else {
 				initPostValues();
 				HttpPost httpRequest = new HttpPost(urlstr);
-				httpRequest.setEntity(new UrlEncodedFormEntity(sess_params,HTTP.UTF_8));
+				for ( Header hh : _headers ) {
+					httpRequest.setHeader(hh);
+				}
+				httpRequest.setEntity(new UrlEncodedFormEntity(sess_params,"GBK"));
 				HttpResponse httpRep = new DefaultHttpClient(httpparam).execute(httpRequest, hcon);
-				result = EntityUtils.toString(httpRep.getEntity());
+				result = EntityUtils.toByteArray(httpRep.getEntity());
 			}
 			
 			//_tab = TableAdapter.DecodeHtml(EntityUtils.toString(httpRep.getEntity()), _width);

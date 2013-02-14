@@ -1,23 +1,18 @@
 package com.ningtest.weizhang;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.cookie.Cookie;
-
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 public class PopImgCode extends Activity {
 	final static String _imgurl = "http://www.stc.gov.cn/search/image_code.asp?rnd=0.06766127818264067";
@@ -25,12 +20,14 @@ public class PopImgCode extends Activity {
 	private ImageView _img;
 	private EditText _txt;
 	private int _flag;
+	private Bundle _param_store;
 	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_pop);
 		
         // Ïê¼ûStrictModeÎÄµµ
+		/*
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                 .detectDiskReads()
                 .detectDiskWrites()
@@ -43,11 +40,13 @@ public class PopImgCode extends Activity {
                 .penaltyLog()
                 .penaltyDeath()
                 .build());
-        
+        */
 		_flag = 0;
 		
 		_img = (ImageView)findViewById(R.id.pop_img);
 		_txt = (EditText)findViewById(R.id.pop_code);
+		
+		_param_store = new Bundle();
 		
 		((Button)findViewById(R.id.pop_btn)).setOnClickListener(
 				new View.OnClickListener() {
@@ -55,13 +54,13 @@ public class PopImgCode extends Activity {
 					public void onClick(View v) {
 						// TODO Auto-generated method stub
 						if ( _flag > 0 ) {
-							Bundle code = new Bundle();
-							code.putString("code", _txt.getText().toString());
+							_param_store.putString("code", _txt.getText().toString());
 							Intent codeIntent = new Intent(PopImgCode.this, MainActivity.class);
-							codeIntent.putExtras(code);
+							codeIntent.putExtras(_param_store);
 							
 							PopImgCode.this.startActivity(codeIntent);
 						} else {
+							/*
 							try { 
 								URL myImgUrl = new URL(_imgurl);
 								HttpURLConnection conn = (HttpURLConnection)myImgUrl.openConnection();   
@@ -74,6 +73,8 @@ public class PopImgCode extends Activity {
 							} catch(Exception e) {
 								Toast.makeText(PopImgCode.this, e.toString(), Toast.LENGTH_LONG).show();
 							}
+							*/
+							new GetWeizhangCode().execute(_imgurl, _ua, "get");
 						}
 					}
 				});
@@ -81,6 +82,11 @@ public class PopImgCode extends Activity {
 	
 	
 	protected class GetWeizhangCode extends GetInfoTask {
+		@Override
+		protected void onPreExecute() {
+			super.initHeaders("Referer", "http://www.stc.gov.cn/");
+			super.initHeaders("Accept",	"image/png,image/*;q=0.8,*/*;q=0.5");
+		}
 		
 		protected void onPostExecGet(final Boolean succ) {
 			//showProgress(false);
@@ -91,15 +97,19 @@ public class PopImgCode extends Activity {
 				//sess_data.putString("html", result);
 				//Intent yunjianIntent = new Intent(LoginActivity.this,NetAppActivity.class);
 				//yunjianIntent.putExtras(sess_data);
-				List<Cookie> cookieLst = cookies.getCookies();
+				List<Cookie> cookieLst = super.cs.getCookies();
+				Pattern ptn = Pattern.compile("ASPSESSIONID");
 				for ( int i=0; i<cookieLst.size(); ++i ) {
-					if ( cookieLst.get(i).getName().equals("_check_app_session") ) {
-						mCookie = cookieLst.get(i).getValue();
-					} else if ( cookieLst.get(i).getName().equals("remember_token") ) {
-						mToken = cookieLst.get(i).getValue();
+					String nn = cookieLst.get(i).getName();
+					String vv = cookieLst.get(i).getValue();
+					Matcher mm = ptn.matcher(nn);
+					if ( mm.find() ) {
+						_param_store.putString(nn, vv);	
 					}
 				}
 				
+				_img.setImageBitmap(BitmapFactory.decodeByteArray(result, 0, result.length));
+				_flag = 1;
 				//startActivity(yunjianIntent);
 			} else {
 				// TODO: get data faild
