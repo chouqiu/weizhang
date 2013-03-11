@@ -40,11 +40,6 @@ public class MainActivity extends Activity {
 		_infoView.setMovementMethod(LinkMovementMethod.getInstance());
 		_code = new String();
 		
-		// 载入保存的车牌车架号
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  
-		((EditText)findViewById(R.id.editText_chepai)).setText(settings.getString("chepai", ""));
-		((EditText)findViewById(R.id.editText_chejia)).setText(settings.getString("chejia", ""));
-		
 		((Button)findViewById(R.id.button_submit)).setOnClickListener(
 				new View.OnClickListener() {
 					@Override
@@ -90,6 +85,16 @@ public class MainActivity extends Activity {
 						}
 					}
 				});
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		// 载入保存的车牌车架号
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  
+		((EditText)findViewById(R.id.editText_chepai)).setText(settings.getString("chepai", ""));
+		((EditText)findViewById(R.id.editText_chejia)).setText(settings.getString("chejia", ""));
 	}
 
 	@Override

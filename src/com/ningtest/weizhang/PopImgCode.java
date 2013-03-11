@@ -8,6 +8,7 @@ import org.apache.http.cookie.Cookie;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -83,11 +84,16 @@ public class PopImgCode extends Activity {
 						}
 					}
 				});
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
 		
+		_flag = 0;
 		new GetWeizhangCode().execute(_imgurl, _ua, "get");
 		_txt.setHint("等待拉取验证码...");
 	}
-	
 	
 	protected class GetWeizhangCode extends GetInfoTask {
 		@Override
@@ -133,6 +139,7 @@ public class PopImgCode extends Activity {
 			}
 		}
 		
+		@SuppressLint("SdCardPath")
 		private String tryProcImg(Bitmap bmp) {
 			TessBaseAPI baseApi=new TessBaseAPI();
 			baseApi.init("/sdcard/", "eng");
