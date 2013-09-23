@@ -5,14 +5,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.http.cookie.Cookie;
+
+import com.googlecode.tesseract.android.TessBaseAPI;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 public class PopImgCode extends Activity {
 	final static String _imgurl = "http://www.stc.gov.cn/search/image_code.asp?rnd=0.06766127818264067";
@@ -82,6 +88,14 @@ public class PopImgCode extends Activity {
 		new GetWeizhangCode().execute(_imgurl, _ua, "get");
 	}
 	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		_flag = 0;
+		new GetWeizhangCode().execute(_imgurl, _ua, "get");
+		_txt.setHint("等待拉取验证码...");
+	}
 	
 	protected class GetWeizhangCode extends GetInfoTask {
 		@Override
@@ -94,6 +108,7 @@ public class PopImgCode extends Activity {
 			//showProgress(false);
 
 			if ( succ ) {
+				_txt.setHint("等待拉取验证码...OK!");
 				// TODO: get data
 				//Bundle sess_data = new Bundle();
 				//sess_data.putString("html", result);
@@ -110,14 +125,31 @@ public class PopImgCode extends Activity {
 					}
 				}
 				
-				_img.setImageBitmap(BitmapFactory.decodeByteArray(result, 0, result.length));
+				Bitmap bmp = BitmapFactory.decodeByteArray(result, 0, result.length);
+				_img.setImageBitmap(bmp);
+				
+				String rst = tryProcImg(bmp);
+				Toast.makeText(PopImgCode.this, "try decode img: "+rst, Toast.LENGTH_SHORT).show();
+				_txt.setText(rst);
 				_flag = 1;
 				//startActivity(yunjianIntent);
 			} else {
+				_txt.setHint("等待拉取验证码...failed!");
 				// TODO: get data faild
 				//mPasswordView.setError(_errmsg);
 				//mPasswordView.requestFocus();
 			}
+		}
+		
+		@SuppressLint("SdCardPath")
+		private String tryProcImg(Bitmap bmp) {
+			TessBaseAPI baseApi=new TessBaseAPI();
+			baseApi.init("/sdcard/", "eng");
+			baseApi.setImage(bmp);
+			String text = new String(baseApi.getUTF8Text());
+			baseApi.clear();
+			baseApi.end();
+			return text;
 		}
 	}
 }
