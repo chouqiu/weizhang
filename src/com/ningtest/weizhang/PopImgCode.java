@@ -78,6 +78,8 @@ public class PopImgCode extends Activity {
 						}
 					}
 				});
+		
+		new GetWeizhangCode().execute(_imgurl, _ua, "get");
 	}
 	
 	
