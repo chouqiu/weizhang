@@ -21,7 +21,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 public class PopImgCode extends Activity {
-	final static String _imgurl = "http://www.stc.gov.cn/search/image_code.asp?rnd=0.06766127818264067";
+	final static String _imgurl_old = "http://www.stc.gov.cn/search/image_code.asp?rnd=0.06766127818264067";
+	final static String _imgurl = "http://www.stc.gov.cn:8082/szwsjj_web/ImgServlet.action?rnd=";
 	final static String _ua = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17";
 	private ImageView _img;
 	private EditText _txt;
@@ -80,12 +81,14 @@ public class PopImgCode extends Activity {
 								Toast.makeText(PopImgCode.this, e.toString(), Toast.LENGTH_LONG).show();
 							}
 							*/
-							new GetWeizhangCode().execute(_imgurl, _ua, "get");
+							String imgurl = _imgurl+Math.random();
+							new GetWeizhangCode().execute(imgurl, _ua, "get");
 						}
 					}
 				});
 		
-		new GetWeizhangCode().execute(_imgurl, _ua, "get");
+		String imgurl = _imgurl+Math.random();
+		new GetWeizhangCode().execute(imgurl, _ua, "get");
 	}
 	
 	@Override
@@ -100,8 +103,11 @@ public class PopImgCode extends Activity {
 	protected class GetWeizhangCode extends GetInfoTask {
 		@Override
 		protected void onPreExecute() {
-			super.initHeaders("Referer", "http://www.stc.gov.cn/");
-			super.initHeaders("Accept",	"image/png,image/*;q=0.8,*/*;q=0.5");
+			super.initHeaders("Host", "www.stc.gov.cn:8082");
+			super.initHeaders("Referer", "http://www.stc.gov.cn:8082/szwsjj_web/jsp/xxcx/jdcjtwfcx.jsp");
+			super.initHeaders("Accept",	"image/webp,*/*;q=0.8");
+			super.initHeaders("Accept-Encoding", "gzip,deflate,sdch");
+			super.initHeaders("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4");
 		}
 		
 		protected void onPostExecGet(final Boolean succ) {
@@ -115,7 +121,7 @@ public class PopImgCode extends Activity {
 				//Intent yunjianIntent = new Intent(LoginActivity.this,NetAppActivity.class);
 				//yunjianIntent.putExtras(sess_data);
 				List<Cookie> cookieLst = super.cs.getCookies();
-				Pattern ptn = Pattern.compile("ASPSESSIONID");
+				Pattern ptn = Pattern.compile("JSESSIONID");
 				for ( int i=0; i<cookieLst.size(); ++i ) {
 					String nn = cookieLst.get(i).getName();
 					String vv = cookieLst.get(i).getValue();

@@ -22,7 +22,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-	final static String _rsturl = "http://www.stc.gov.cn/search/vehicle_peccacy_result_wwww.asp";
+	final static String _rsturl_old = "http://www.stc.gov.cn/search/vehicle_peccacy_result_wwww.asp";
+	final static String _rsturl = "http://www.stc.gov.cn:8082/szwsjj_web/jsp/xxcx/jdcjtwfcx.jsp";
 	final static String _ua = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17";
 	final static String PREFS_NAME = "weizhang_pref"; 
 	private String _chejia, _chepai, _code;
@@ -115,13 +116,14 @@ public class MainActivity extends Activity {
 		protected void initPostValues() {
 			super.initPostValues();
 			
-			sess_params.add(new BasicNameValuePair("cph","粤B"+_chepai));
-			sess_params.add(new BasicNameValuePair("stc","69404"));
-			sess_params.add(new BasicNameValuePair("cl","02"));
-			sess_params.add(new BasicNameValuePair("stype","0"));
-			sess_params.add(new BasicNameValuePair("fdjh", _chejia));
-			sess_params.add(new BasicNameValuePair("image_code", _code));
-			sess_params.add(new BasicNameValuePair("submit", "确 定"));
+			sess_params.add(new BasicNameValuePair("CXLXMC", "jdcjtwf"));
+			sess_params.add(new BasicNameValuePair("CPHM","粤B"+_chepai));
+			//sess_params.add(new BasicNameValuePair("stc","69404"));
+			sess_params.add(new BasicNameValuePair("JDCLX","02"));
+			//sess_params.add(new BasicNameValuePair("stype","0"));
+			sess_params.add(new BasicNameValuePair("CJH", _chejia));
+			sess_params.add(new BasicNameValuePair("YANZHEN", _code));
+			//sess_params.add(new BasicNameValuePair("submit", "确 定"));
 		}
 		
 		protected void onPostExecPost(final Boolean succ) {
