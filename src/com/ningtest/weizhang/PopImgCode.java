@@ -134,9 +134,10 @@ public class PopImgCode extends Activity {
 				Bitmap bmp = BitmapFactory.decodeByteArray(result, 0, result.length);
 				_img.setImageBitmap(bmp);
 				
-				String rst = tryProcImg(bmp);
-				Toast.makeText(PopImgCode.this, "try decode img: "+rst, Toast.LENGTH_SHORT).show();
-				_txt.setText(rst);
+				// TODO: ÔÝÊ±ÆÁ±Î
+				//String rst = tryProcImg(bmp);
+				//Toast.makeText(PopImgCode.this, "try decode img: "+rst, Toast.LENGTH_SHORT).show();
+				//_txt.setText(rst);
 				_flag = 1;
 				//startActivity(yunjianIntent);
 			} else {

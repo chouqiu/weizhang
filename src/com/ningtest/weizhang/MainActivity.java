@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 	final static String _rsturl_old = "http://www.stc.gov.cn/search/vehicle_peccacy_result_wwww.asp";
-	final static String _rsturl = "http://www.stc.gov.cn:8082/szwsjj_web/jsp/xxcx/jdcjtwfcx.jsp";
+	final static String _rsturl = "http://www.stc.gov.cn:8082/szwsjj_web/JdcjtwfcxServlet";
 	final static String _ua = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17";
 	final static String PREFS_NAME = "weizhang_pref"; 
 	private String _chejia, _chepai, _code;
@@ -45,7 +45,6 @@ public class MainActivity extends Activity {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						// TODO Auto-generated method stub
 						_chepai = ((EditText)findViewById(R.id.editText_chepai)).getText().toString();
 						_chejia = ((EditText)findViewById(R.id.editText_chejia)).getText().toString();
 						try {
@@ -66,14 +65,15 @@ public class MainActivity extends Activity {
 								}
 							}
 							
-							_infoView.append("chepai: "+_chepai+"\n");
+							_infoView.append("chepai: "+getString(R.string.tips_chepai_prefix, "UTF-8")+_chepai+"\n");
+							_infoView.append("chejia: "+_chejia+"\n");
 							wz.execute(_rsturl, _ua, "post");
 						} catch ( Exception e ) {
 							Intent getcode = new Intent(MainActivity.this, PopImgCode.class);
 							MainActivity.this.startActivity(getcode);
 						}
 						
-						// ±£´æ³µÁ¾ÐÅÏ¢
+						// ï¿½ï¿½ï¿½æ³µï¿½ï¿½ï¿½ï¿½Ï¢
 						try {
 							SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  
 							SharedPreferences.Editor editor = settings.edit();  
@@ -92,7 +92,7 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		
-		// ÔØÈë±£´æµÄ³µÅÆ³µ¼ÜºÅ
+		// ï¿½ï¿½ï¿½ë±£ï¿½ï¿½Ä³ï¿½ï¿½Æ³ï¿½ï¿½Üºï¿½
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);  
 		((EditText)findViewById(R.id.editText_chepai)).setText(settings.getString("chepai", ""));
 		((EditText)findViewById(R.id.editText_chejia)).setText(settings.getString("chejia", ""));
@@ -109,7 +109,14 @@ public class MainActivity extends Activity {
 	private class GetWeizhangInfo extends GetInfoTask {
 		@Override
 		protected void onPreExecute() {
-			super.initHeaders("Referer", "http://www.stc.gov.cn/");
+			super.initHeaders("Accept", "*/*");
+			super.initHeaders("Accept-Encoding", "gzip,deflate,sdch");
+			super.initHeaders("Accept-Language", "zh-CN,zh;q=0.8");
+			super.initHeaders("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+			super.initHeaders("Host", "www.stc.gov.cn:8082");
+			super.initHeaders("Origin", "http://www.stc.gov.cn:8082");
+			super.initHeaders("Referer", "http://www.stc.gov.cn:8082/szwsjj_web/jsp/xxcx/jdcjtwfcx.jsp");
+			super.initHeaders("X-Requested-With", "XMLHttpRequest");
 		}
 		
 		@Override
@@ -117,13 +124,12 @@ public class MainActivity extends Activity {
 			super.initPostValues();
 			
 			sess_params.add(new BasicNameValuePair("CXLXMC", "jdcjtwf"));
-			sess_params.add(new BasicNameValuePair("CPHM","ÔÁB"+_chepai));
+			sess_params.add(new BasicNameValuePair("CPHM", getString(R.string.tips_chepai_prefix, "UTF-8")+_chepai));
 			//sess_params.add(new BasicNameValuePair("stc","69404"));
 			sess_params.add(new BasicNameValuePair("JDCLX","02"));
 			//sess_params.add(new BasicNameValuePair("stype","0"));
 			sess_params.add(new BasicNameValuePair("CJH", _chejia));
 			sess_params.add(new BasicNameValuePair("YANZHEN", _code));
-			//sess_params.add(new BasicNameValuePair("submit", "È· ¶¨"));
 		}
 		
 		protected void onPostExecPost(final Boolean succ) {
@@ -134,7 +140,7 @@ public class MainActivity extends Activity {
 				
 				String body;
 				try {
-					body = new String(result, "GBK");
+					body = new String(result, "UTF-8");
 				} catch (UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
 					body = new String(result);
