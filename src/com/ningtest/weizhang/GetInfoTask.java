@@ -32,11 +32,19 @@ public class GetInfoTask extends AsyncTask<String, Integer, Boolean> {
 	protected String _type;
 	protected CookieStore cs;
 	private List<Header> _headers;
+	private String _encode = "GBK";
 	
 	GetInfoTask() {
 		cs = new BasicCookieStore();
 		sess_params = new ArrayList<NameValuePair>();
 		_headers = new ArrayList<Header>();
+	}
+	
+	GetInfoTask(String encode) {
+		cs = new BasicCookieStore();
+		sess_params = new ArrayList<NameValuePair>();
+		_headers = new ArrayList<Header>();
+		_encode = encode;
 	}
 	
 	protected void initPostValues() {}
@@ -87,7 +95,7 @@ public class GetInfoTask extends AsyncTask<String, Integer, Boolean> {
 				for ( Header hh : _headers ) {
 					httpRequest.setHeader(hh);
 				}
-				httpRequest.setEntity(new UrlEncodedFormEntity(sess_params,"GBK"));
+				httpRequest.setEntity(new UrlEncodedFormEntity(sess_params, _encode));
 				HttpResponse httpRep = new DefaultHttpClient(httpparam).execute(httpRequest, hcon);
 				result = EntityUtils.toByteArray(httpRep.getEntity());
 			}
